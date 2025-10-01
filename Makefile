@@ -10,6 +10,7 @@ COVER_TOTAL = $(RESULTS_DIR)/unit-coverage-summary.txt
 LINT_CMD = $(TEMP_DIR)/golangci-lint run --tests=false --timeout=2m --config .golangci.yaml
 GOIMPORTS_CMD = $(TEMP_DIR)/gosimports -local github.com/anchore
 RELEASE_CMD=$(TEMP_DIR)/goreleaser release --rm-dist
+RELEASE_FLAGS=""
 SNAPSHOT_CMD=$(RELEASE_CMD) --skip-publish --rm-dist --snapshot
 OS=$(shell uname | tr '[:upper:]' '[:lower:]')
 SNAPSHOT_BIN=$(shell realpath $(shell pwd)/$(SNAPSHOT_DIR)/$(REPO)_$(OS)_amd64/$(BIN))
@@ -186,7 +187,7 @@ validate-syft-release-version:
 .PHONY: release
 release: clean-dist CHANGELOG.md
 	$(call title,Publishing release artifacts)
-	bash -c "$(RELEASE_CMD) --release-notes <(cat CHANGELOG.md)"
+	bash -c "$(RELEASE_CMD) $(RELEASE_FLAGS) --release-notes <(cat CHANGELOG.md)"
 
 .PHONY: clean
 clean: clean-dist clean-snapshot  ## Remove previous builds, result reports, and test cache
