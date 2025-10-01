@@ -151,22 +151,18 @@ cli-fingerprint:
 	find test/cli/test-fixtures/image-* -type f -exec md5sum {} + | awk '{print $1}' | sort | md5sum | tee test/cli/test-fixtures/cache.fingerprint && echo "$(CLI_CACHE_BUSTER)" >> test/cli/test-fixtures/cache.fingerprint
 
 .PHONY: cli
-cli: $(SNAPSHOT_DIR) ## Run CLI tests
-	chmod 755 "$(SNAPSHOT_BIN)"
-	SYFT_BINARY_LOCATION='$(SNAPSHOT_BIN)' \
-		go test -count=1 -v ./test/cli
-
-$(SNAPSHOT_DIR): $(TEMP_DIR) ## Build snapshot release binaries and packages
+cli:
 	$(call title,Building snapshot artifacts)
-	# create a config with the dist dir overridden
 	echo "dist: $(SNAPSHOT_DIR)" > $(TEMP_DIR)/goreleaser.yaml
 	cat .goreleaser.yaml >> $(TEMP_DIR)/goreleaser.yaml
-
 	$(SNAPSHOT_CMD) --config $(TEMP_DIR)/goreleaser.yaml
-
 
 .PHONY: install-snapshot
 install-snapshot:
+	cp $(SNAPSHOT_BIN) ~/.docker/cli-plugins/
+
+.PHONY: install
+install: cli
 	cp $(SNAPSHOT_BIN) ~/.docker/cli-plugins/
 
 .PHONY: changelog
